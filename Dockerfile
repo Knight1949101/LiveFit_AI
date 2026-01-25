@@ -1,9 +1,12 @@
-FROM modelscope-registry.cn-beijing.cr.aliyuncs.com/modelscope-repo/python:3.10
+FROM nginx:alpine
 
-WORKDIR /home/user/app
+WORKDIR /usr/share/nginx/html
 
-COPY ./build/web /home/user/app
+COPY ./build/web /usr/share/nginx/html
 
-# 使用Python的http.server来提供静态文件，不需要额外安装库
 EXPOSE 7860
-CMD ["python", "-m", "http.server", "7860"]
+
+# 修改nginx配置文件，监听7860端口
+RUN sed -i 's/listen       80;/listen       7860;/g' /etc/nginx/conf.d/default.conf
+
+CMD ["nginx", "-g", "daemon off;"]
