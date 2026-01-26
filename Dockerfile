@@ -1,10 +1,15 @@
-FROM python:3.10-slim
+FROM modelscope-registry.cn-beijing.cr.aliyuncs.com/modelscope-repo/python:3.10
 
-WORKDIR /app
+WORKDIR /home/user/app
 
-COPY ./build/web /app
+# 复制项目文件
+COPY ./ /home/user/app
 
+# 安装依赖
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 暴露端口
 EXPOSE 7860
 
-# 使用Python内置的http.server提供静态文件服务
-CMD python -m http.server 7860
+# 启动应用
+ENTRYPOINT ["python", "-u", "app.py"]

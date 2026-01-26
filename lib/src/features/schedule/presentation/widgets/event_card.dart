@@ -93,16 +93,21 @@ class EventCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      // Star Icon Button
-                      IconButton(
-                        icon: Icon(
-                          event.isStarred ? Icons.star : Icons.star_border,
-                          color: event.isStarred ? Colors.amber : Colors.grey,
-                          size: 20,
+                      // Star Icon Button - 使用Material+InkWell提供点击反馈
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: onStarTap,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            child: Icon(
+                              event.isStarred ? Icons.star : Icons.star_border,
+                              color: event.isStarred ? Colors.amber : Colors.grey,
+                              size: 28,
+                            ),
+                          ),
                         ),
-                        onPressed: onStarTap,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
                       ),
                     ],
                   ),

@@ -239,6 +239,12 @@ class AppLocalizations {
       'pleaseEnterScheduleTitle': 'Please enter a schedule title',
       'endTimeCannotBeEarlier': 'End time cannot be earlier than start time',
       'cancel': 'Cancel',
+      'clearData': 'Clear Data',
+      'clearDataConfirmTitle': 'Clear All Data',
+      'clearDataConfirmMessage': 'Are you sure you want to clear all user data? This action cannot be undone.',
+      'confirm': 'Confirm',
+      'clearDataSuccess': 'All data has been cleared',
+      'clearDataFailed': 'Failed to clear data, please try again',
     },
     'zh': {
       'appTitle': 'LifeFit AI',
@@ -454,6 +460,12 @@ class AppLocalizations {
       'pleaseEnterScheduleTitle': '请输入日程标题',
       'endTimeCannotBeEarlier': '结束时间不能早于开始时间',
       'cancel': '取消',
+      'clearData': '清除数据',
+      'clearDataConfirmTitle': '清除所有数据',
+      'clearDataConfirmMessage': '确定要清除所有用户数据吗？此操作不可撤销。',
+      'confirm': '确认',
+      'clearDataSuccess': '已清除所有数据',
+      'clearDataFailed': '清除数据失败，请重试',
     },
   };
 
@@ -649,6 +661,14 @@ class AppLocalizations {
   String get cancel => _localizedValues[locale.languageCode]!['cancel']!;
   String get todayStarredEvents => _localizedValues[locale.languageCode]!['todayStarredEvents']!;
   String get noStarredEventsToday => _localizedValues[locale.languageCode]!['noStarredEventsToday']!;
+  
+  // Clear Data
+  String get clearData => _localizedValues[locale.languageCode]!['clearData']!;
+  String get clearDataConfirmTitle => _localizedValues[locale.languageCode]!['clearDataConfirmTitle']!;
+  String get clearDataConfirmMessage => _localizedValues[locale.languageCode]!['clearDataConfirmMessage']!;
+  String get confirm => _localizedValues[locale.languageCode]!['confirm']!;
+  String get clearDataSuccess => _localizedValues[locale.languageCode]!['clearDataSuccess']!;
+  String get clearDataFailed => _localizedValues[locale.languageCode]!['clearDataFailed']!;
   
   // General method to get localized string by key
   String getLocalizedString(String key) {

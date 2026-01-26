@@ -66,12 +66,12 @@ class LocationService {
           } else if (address.containsKey('country')) {
             return address['country'] as String;
           } else {
-            // 如果没有找到任何地址字段，返回默认城市名
-            return '北京';
+            // 如果没有找到任何地址字段，显示当前位置
+            return '当前位置';
           }
         } else {
-          // API请求失败，返回默认城市名
-          return '北京';
+          // API请求失败，显示当前位置
+          return '当前位置';
         }
       } catch (e) {
         retryCount++;
@@ -80,12 +80,12 @@ class LocationService {
           await Future.delayed(Duration(seconds: 2 * retryCount));
           continue;
         }
-        // 网络请求失败，返回默认城市名
-        return '北京';
+        // 网络请求失败，显示当前位置
+        return '当前位置';
       }
     }
     // 理论上不会到达这里
-    return '北京';
+    return '当前位置';
   }
 
   Future<(double, double, String)> getLocationData() async {

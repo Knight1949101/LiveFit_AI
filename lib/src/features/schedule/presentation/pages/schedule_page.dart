@@ -556,12 +556,12 @@ class _SchedulePageState extends State<SchedulePage>
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          // 允许水平滚动，解决日历溢出问题
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: GestureDetector(
+        child: LayoutBuilder(
+          builder: (context, outerConstraints) {
+            // 获取实际可用宽度（被 main.dart 中的 ConstrainedBox 约束为 430px）
+            final availableWidth = outerConstraints.maxWidth;
+            
+            return GestureDetector(
               // 添加左右滑动切换日期功能
               onHorizontalDragStart: (details) {
                 _dragStartX = details.localPosition.dx;
@@ -591,64 +591,65 @@ class _SchedulePageState extends State<SchedulePage>
                   });
                 }
               },
-              // 确保子组件的手势不会干扰父组件的滑动
-              behavior: HitTestBehavior.opaque,
+              behavior: HitTestBehavior.translucent, // 使用translucent允许子组件接收点击事件
               child: SizedBox(
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height,
+                width: availableWidth,
+                height: outerConstraints.maxHeight,
                 child: Column(
                   children: [
                     if (_currentView == ViewType.calendar)
-                      Expanded(
-                        flex: 0,
-                        child: CalendarStrip(
-                          focusedDay: _focusedDay,
-                          selectedDay: _selectedDay,
-                          onDaySelected: (selected, focused) {
-                            setState(() {
-                              _selectedDay = selected;
-                              _focusedDay = focused;
-                            });
-                          },
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: CalendarStrip(
+                            focusedDay: _focusedDay,
+                            selectedDay: _selectedDay,
+                            onDaySelected: (selected, focused) {
+                              setState(() {
+                                _selectedDay = selected;
+                                _focusedDay = focused;
+                              });
+                            },
+                          ),
                         ),
                       ),
                     const SizedBox(height: 8),
                     Expanded(
                       child: _currentView == ViewType.calendar
                           ? TimelineView(
-                              events: _getEventsForDay(_selectedDay),
-                              onEventTap: (event) {
-                                if (_isMultiSelectMode) {
-                                  _toggleEventSelection(event.id);
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        '${l10n.eventClicked}${event.title}',
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                              onEventLongPress: (event) {
-                                if (!_isMultiSelectMode) {
-                                  _toggleMultiSelectMode();
-                                  _toggleEventSelection(event.id);
-                                }
-                              },
-                              onStarTap: (event) {
-                                _toggleEventStarred(event);
-                              },
-                              isMultiSelectMode: _isMultiSelectMode,
-                              selectedEventIds: _selectedEventIds,
-                            )
-                          : _buildListView(),
+                          events: _getEventsForDay(_selectedDay),
+                          onEventTap: (event) {
+                            if (_isMultiSelectMode) {
+                              _toggleEventSelection(event.id);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '${l10n.eventClicked}${event.title}',
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          onEventLongPress: (event) {
+                            if (!_isMultiSelectMode) {
+                              _toggleMultiSelectMode();
+                              _toggleEventSelection(event.id);
+                            }
+                          },
+                          onStarTap: (event) {
+                            _toggleEventStarred(event);
+                          },
+                          isMultiSelectMode: _isMultiSelectMode,
+                          selectedEventIds: _selectedEventIds,
+                        )
+                      : _buildListView(),
                     ),
                   ],
                 ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
       floatingActionButton: _isMultiSelectMode

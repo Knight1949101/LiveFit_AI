@@ -4,6 +4,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_provider.dart';
 import '../../../core/localization/locale_provider.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/storage_service.dart';
+import '../../authentication/presentation/login_screen.dart';
 import 'widgets/setting_item.dart';
 import 'widgets/setting_section.dart';
 import 'widgets/user_profile_card.dart';
@@ -19,8 +21,11 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsEnabled = true;
+  bool _isClearing = false;
+  final StorageService _storageService = StorageService();
 
   void _showSnackBar(String message) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -29,6 +34,95 @@ class _SettingsScreenState extends State<SettingsScreen> {
         duration: const Duration(seconds: 1),
       ),
     );
+  }
+
+  /// 显示清除数据确认对话框
+  void _showClearDataDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.clearDataConfirmTitle),
+        content: Text(l10n.clearDataConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+            },
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              _clearAllData();
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.error,
+            ),
+            child: Text(l10n.confirm),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 清除所有用户数据
+  Future<void> _clearAllData() async {
+    if (_isClearing) return;
+    
+    final l10n = AppLocalizations.of(context)!;
+    
+    setState(() {
+      _isClearing = true;
+    });
+    
+    try {
+      // 清除所有存储的数据
+      await _storageService.clearAll();
+      
+      if (!mounted) return;
+      
+      // 显示成功提示
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.clearDataSuccess),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 1),
+        ),
+      );
+      
+      // 延迟一下让用户看到提示，然后跳转到登录页面
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      if (!mounted) return;
+      
+      // 跳转到登录页面，清除所有导航历史
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      
+      // 显示错误提示
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.clearDataFailed),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isClearing = false;
+        });
+      }
+    }
   }
 
   void _showLanguageDialog(BuildContext context, LocaleProvider localeProvider) {
@@ -217,6 +311,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ),
                       onTap: () => _showSnackBar('Bind phone feature'),
+                    ),
+                    SettingItem(
+                      icon: Icons.delete_outline,
+                      title: l10n.clearData,
+                      iconColor: AppColors.error,
+                      trailing: _isClearing
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(
+                              Icons.arrow_forward_ios,
+                              size: 14,
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                            ),
+                      onTap: _isClearing ? null : _showClearDataDialog,
                     ),
                   ],
                 ),
