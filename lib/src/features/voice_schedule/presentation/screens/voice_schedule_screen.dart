@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../../../core/services/aliyun_voice_recognition_service.dart';
 import '../../../../core/services/local_voice_recognition_optimized.dart';
 import '../../../../core/services/nlp_service.dart';
 import '../../../../core/services/storage_service.dart';
@@ -24,7 +25,9 @@ class VoiceScheduleScreen extends StatefulWidget {
 }
 
 class _VoiceScheduleScreenState extends State<VoiceScheduleScreen> {
-  final OptimizedLocalVoiceRecognitionService _voiceService =
+  final AliyunVoiceRecognitionService _voiceService =
+      AliyunVoiceRecognitionService();
+  final OptimizedLocalVoiceRecognitionService _fallbackVoiceService =
       OptimizedLocalVoiceRecognitionService();
   final NlpService _nlpService = NlpService();
   final AiService _aiService = AiService();
@@ -33,6 +36,7 @@ class _VoiceScheduleScreenState extends State<VoiceScheduleScreen> {
   bool _isListening = false;
   bool _isProcessing = false;
   bool _isOnline = false; // 初始化为false，避免在网络检查完成前尝试初始化语音服务
+  bool _isUsingFallback = false; // 是否使用备用服务
   String _recognizedText = '';
   String _partialText = '';
   double _confidence = 0.0;
@@ -92,10 +96,22 @@ class _VoiceScheduleScreenState extends State<VoiceScheduleScreen> {
       // 无论是否在线，都初始化语音服务
       await _voiceService.initSpeech();
 
+      // 检查阿里云语音服务是否可用
+      if (!_voiceService.isAvailable) {
+        log.warning('阿里云语音服务不可用，尝试使用备用服务');
+        setState(() {
+          _isUsingFallback = true;
+        });
+        // 初始化备用服务
+        await _fallbackVoiceService.initSpeech();
+      }
+
       // 仅在在线状态下检查语音服务是否可用
       if (_isOnline) {
-        // 检查语音服务是否可用
-        if (!_voiceService.isAvailable) {
+        // 检查当前使用的语音服务是否可用
+        if ((_isUsingFallback
+            ? !_fallbackVoiceService.isAvailable
+            : !_voiceService.isAvailable)) {
           // 如果不可用，显示详细提示信息
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -115,6 +131,25 @@ class _VoiceScheduleScreenState extends State<VoiceScheduleScreen> {
       // 处理初始化错误，显示详细信息
       log.error('语音服务初始化失败异常: $e');
       log.error('堆栈跟踪: $stackTrace');
+
+      // 尝试使用备用服务
+      try {
+        log.info('尝试使用备用语音识别服务');
+        setState(() {
+          _isUsingFallback = true;
+        });
+        await _fallbackVoiceService.initSpeech();
+        if (_fallbackVoiceService.isAvailable) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('使用备用语音识别服务'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } catch (fallbackError) {
+        log.error('备用语音服务初始化失败: $fallbackError');
+      }
 
       String errorMsg;
       if (e.toString().contains('recognizerNotAvailable')) {
@@ -557,7 +592,9 @@ class _VoiceScheduleScreenState extends State<VoiceScheduleScreen> {
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.3),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

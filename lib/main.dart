@@ -129,192 +129,201 @@ class LifeFitApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          // 使用builder包裹所有页面，限制最大宽度和高度
+          // 使用builder包裹所有页面，根据屏幕尺寸自适应布局
           builder: (context, child) {
             return LayoutBuilder(
               builder: (context, constraints) {
                 // 如果屏幕宽度足够，显示左侧说明面板
                 final showSidePanel = constraints.maxWidth > 900;
                 
+                // 移动端布局（全屏显示）
+                if (!showSidePanel) {
+                  return child!;
+                }
+                
+                // Web/桌面端布局（显示手机模拟器）
                 return Container(
                   color: const Color(0xFF1a1a2e), // 深色背景
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // 左侧说明文字（只在宽屏幕时显示）
-                      if (showSidePanel)
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(32),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'LifeFit AI',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 36,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                      // 左侧说明文字
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                'LifeFit AI',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  '日程驱动的智能健身助手',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 18,
-                                  ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '日程驱动的智能健身助手',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 18,
                                 ),
-                                const SizedBox(height: 32),
-                                // 理念介绍
-                                Container(
-                                  padding: const EdgeInsets.all(20),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.05),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        '核心理念',
-                                        style: TextStyle(
-                                          color: Color(0xFF4ECDC4),
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        '“让运动融入日常，而非打断生活”',
-                                        style: TextStyle(
-                                          color: Colors.white60,
-                                          fontSize: 14,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        '通过AI智能分析您的日程安排',
-                                        style: TextStyle(
-                                          color: Colors.white60,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      Text(
-                                        '在空闲时间插入微运动建议',
-                                        style: TextStyle(
-                                          color: Colors.white60,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                              ),
+                              const SizedBox(height: 32),
+                              // 理念介绍
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                                const SizedBox(height: 16),
-                                // 功能介绍
-                                Container(
-                                  padding: const EdgeInsets.all(20),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.05),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        '核心功能',
-                                        style: TextStyle(
-                                          color: Color(0xFF4ECDC4),
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      '核心理念',
+                                      style: TextStyle(
+                                        color: Color(0xFF4ECDC4),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      const SizedBox(height: 12),
-                                      _buildFeatureItem(Icons.calendar_today, '日程驱动', '智能分析日程空闲时段'),
-                                      _buildFeatureItem(Icons.mic, 'AI语音助手', '语音输入快速添加日程'),
-                                      _buildFeatureItem(Icons.cloud, '气象决策', '根据天气推荐运动'),
-                                      _buildFeatureItem(Icons.fitness_center, '微运动库', '丰富的空闲健身动作'),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                // Android App 标识
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFF3DDC84).withOpacity(0.15),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Color(0xFF3DDC84).withOpacity(0.3),
-                                      width: 1,
                                     ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.android,
-                                        color: Color(0xFF3DDC84),
-                                        size: 24,
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      '“让运动融入日常，而非打断生活”',
+                                      style: TextStyle(
+                                        color: Colors.white60,
+                                        fontSize: 14,
+                                        fontStyle: FontStyle.italic,
                                       ),
-                                      const SizedBox(width: 12),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Android App Web 演示版',
-                                            style: TextStyle(
-                                              color: Color(0xFF3DDC84),
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text(
-                                            '完整体验请下载 Android App',
-                                            style: TextStyle(
-                                              color: Colors.white54,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '通过AI智能分析您的日程安排',
+                                      style: TextStyle(
+                                        color: Colors.white60,
+                                        fontSize: 14,
                                       ),
-                                    ],
+                                    ),
+                                    Text(
+                                      '在空闲时间插入微运动建议',
+                                      style: TextStyle(
+                                        color: Colors.white60,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              // 功能介绍
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      '核心功能',
+                                      style: TextStyle(
+                                        color: Color(0xFF4ECDC4),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _buildFeatureItem(Icons.calendar_today, '日程驱动', '智能分析日程空闲时段'),
+                                    _buildFeatureItem(Icons.mic, 'AI语音助手', '语音输入快速添加日程'),
+                                    _buildFeatureItem(Icons.cloud, '气象决策', '根据天气推荐运动'),
+                                    _buildFeatureItem(Icons.fitness_center, '微运动库', '丰富的空闲健身动作'),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              // Android App 标识
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF3DDC84).withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Color(0xFF3DDC84).withOpacity(0.3),
+                                    width: 1,
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      // 中间的手机模拟器
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxWidth: maxMobileWidth,
-                          maxHeight: maxMobileHeight,
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                blurRadius: 20,
-                                spreadRadius: 5,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.android,
+                                      color: Color(0xFF3DDC84),
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Android App Web 演示版',
+                                          style: TextStyle(
+                                            color: Color(0xFF3DDC84),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          '完整体验请下载 Android App',
+                                          style: TextStyle(
+                                            color: Colors.white54,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: child,
+                        ),
+                      ),
+                      // 中间的手机模拟器
+                      Expanded(
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: maxMobileWidth,
+                              maxHeight: constraints.maxHeight * 0.9,
+                            ),
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.3),
+                                    blurRadius: 20,
+                                    spreadRadius: 5,
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: child,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                      // 右侧空白区域（保持平衡，只在宽屏幕时显示）
-                      if (showSidePanel)
-                        Expanded(
-                          child: const SizedBox(),
-                        ),
+                      // 右侧空白区域（保持平衡）
+                      Expanded(
+                        child: const SizedBox(),
+                      ),
                     ],
                   ),
                 );
