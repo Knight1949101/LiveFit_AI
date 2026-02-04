@@ -295,33 +295,16 @@ class OnboardingState extends ChangeNotifier {
   double? get restDayShouldEat => _restDayShouldEat;
 
   // Validation
+  bool isBasicInfoValid() {
+    return _gender != null && _birthday != null && _height != null && _weight != null;
+  }
+
   bool isValid(int step) {
     switch (step) {
       case 0: // Identity
         return _persona != null;
       case 1: // Basic Info
-        return _gender != null && _birthday != null && _height != null && _weight != null;
-      case 2: // Diet
-        return _dietPreference != null;
-      case 3: // Context
-        return _environments.isNotEmpty && _equipment.isNotEmpty && _experienceLevel != null;
-      case 4: // Preference
-        return _weeklyExerciseTime != null && _preferredWorkoutTime != null;
-      case 5: // Goals
-        return _mainGoal != null;
-      case 6: // Summary
-        return _persona != null &&
-               _gender != null &&
-               _birthday != null &&
-               _height != null &&
-               _weight != null &&
-               _mainGoal != null &&
-               _dietPreference != null &&
-               _experienceLevel != null &&
-               _environments.isNotEmpty &&
-               _equipment.isNotEmpty &&
-               _weeklyExerciseTime != null &&
-               _preferredWorkoutTime != null;
+        return isBasicInfoValid();
       default:
         return false;
     }

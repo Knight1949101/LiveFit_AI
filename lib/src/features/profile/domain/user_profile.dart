@@ -147,6 +147,15 @@ class UserProfile {
 
   double get bmi => weight / ((height / 100) * (height / 100));
 
+  /// 检查个人信息是否完整
+  bool get isComplete {
+    // 基础信息（身高、体重、生日、性别）在构造函数中已有默认值或必填，
+    // 这里主要检查用户是否完成了引导流程中的其他详细设置（如运动习惯、基础代谢数据等）
+    return nickname != 'User' && 
+           aerobicExercises.isNotEmpty && 
+           basalMetabolism != null;
+  }
+
   // JSON serialization
   Map<String, dynamic> toJson() {
     return {

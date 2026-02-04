@@ -12,6 +12,8 @@ import '../../../weather/presentation/widgets/weather_expandable_card.dart';
 import '../../../weather/presentation/widgets/exercise_recommendation_card.dart';
 import '../../../weather/presentation/widgets/weather_settings_sheet.dart';
 import '../../../schedule/domain/models/schedule_event.dart';
+import '../../../profile/presentation/providers/user_profile_provider.dart';
+import '../../../profile/presentation/profile_edit_screen.dart';
 
 import 'package:life_fit/src/features/schedule/presentation/pages/schedule_page.dart';
 import '../../../settings/presentation/settings_screen.dart';
@@ -87,6 +89,8 @@ class _DashboardPageState extends State<DashboardPage> {
     }
     final l10n = l10nNullable;
     final weatherProvider = Provider.of<WeatherProvider>(context);
+    final userProfileProvider = Provider.of<UserProfileProvider>(context);
+    final isProfileIncomplete = !userProfileProvider.userProfile.isComplete;
 
     return Scaffold(
       backgroundColor: isDark
@@ -108,6 +112,7 @@ class _DashboardPageState extends State<DashboardPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: [
+                  if (isProfileIncomplete) _buildProfileCompletionBanner(isDark),
                   const EnergyBatteryHeader(energyLevel: 0.75),
                   const SizedBox(height: 16),
                   // 天气模块 - 可展开卡片
@@ -215,6 +220,59 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             )
           : null,
+    );
+  }
+
+  Widget _buildProfileCompletionBanner(bool isDark) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16, top: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.info_outline,
+            color: AppColors.primary,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Text(
+              '请输入更详尽的个人信息，方便我们为您制作更适配的计划。',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
+              );
+            },
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text(
+              '去完善',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

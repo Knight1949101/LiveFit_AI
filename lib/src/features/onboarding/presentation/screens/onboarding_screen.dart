@@ -69,29 +69,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   int _calculateCurrentPage(OnboardingState state) {
     // Determine current page based on completed information
-    if (state.persona != null &&
-        state.gender != null &&
-        state.birthday != null &&
-        state.height != null &&
-        state.weight != null &&
-        state.somatotype != null &&
-        state.mainGoal != null &&
-        state.environments.isNotEmpty &&
-        state.equipment.isNotEmpty &&
-        state.weeklyExerciseTime != null &&
-        state.preferredWorkoutTime != null) {
-      return 6; // Summary step (索引6)
-    } else if (state.mainGoal != null) {
-      return 5; // Goal step (索引5)
-    } else if (state.weeklyExerciseTime != null && state.preferredWorkoutTime != null) {
-      return 4; // Preference step (索引4)
-    } else if (state.environments.isNotEmpty && state.equipment.isNotEmpty) {
-      return 3; // Context step (索引3)
-    } else if (state.somatotype != null) {
-      return 2; // Diet step (索引2)
-    } else if (state.birthday != null) {
-      return 1; // Physique step (索引1)
-    } else if (state.gender != null) {
+    if (state.gender != null && state.birthday != null) {
       return 1; // Basic info step (索引1)
     } else if (state.persona != null) {
       return 0; // Identity step (索引0)
@@ -115,7 +93,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _nextPage() {
     // Skip validation for the last page (summary step)
-    if (_currentPage < 6 && !_state.isValid(_currentPage)) {
+    if (_currentPage < 1 && !_state.isValid(_currentPage)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('请完成当前页面的所有问题'),
@@ -129,19 +107,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     // Save state before moving to next page
     _saveState();
 
-    if (_currentPage < 6) {
+    if (_currentPage < 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOutCubic,
       );
     } else {
-      // Onboarding completed
-      _storageService.setOnboardingCompleted(true);
-      context.read<UserProfileProvider>().updateFromOnboarding(_state);
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardPage()),
-      );
+      _completeOnboarding();
     }
+  }
+
+  void _completeOnboarding() {
+    // Onboarding completed (either fully or partially with basic info)
+    _storageService.setOnboardingCompleted(true);
+    context.read<UserProfileProvider>().updateFromOnboarding(_state);
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const DashboardPage()),
+    );
   }
 
   void _prevPage() {
@@ -193,7 +175,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Step ${_currentPage + 1} / 7',
+                              'Step ${_currentPage + 1} / 2',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -203,7 +185,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             const SizedBox(height: 8),
                             OnboardingProgressBar(
                               currentStep: _currentPage,
-                              totalSteps: 7,
+                              totalSteps: 2,
                             ),
                           ],
                         ),
@@ -225,11 +207,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       // 直接显示IdentityStep，不使用CustomScrollView嵌套
                       IdentityStep(state: _state),
                       BasicInfoStep(state: _state),
-                      DietStep(state: _state),
-                      ContextStep(state: _state),
-                      PreferenceStep(state: _state),
-                      GoalStep(state: _state),
-                      SummaryStep(state: _state),
                     ],
                   ),
                 ),
@@ -252,7 +229,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ),
                       child: Text(
-                        _currentPage == 5 ? '开启 LifeFit 之旅' : '下一步',
+                        _currentPage == 1 ? '开启 LifeFit 之旅' : '下一步',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
