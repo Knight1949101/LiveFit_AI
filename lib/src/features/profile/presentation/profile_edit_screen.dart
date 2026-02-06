@@ -197,6 +197,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> with SingleTicker
         icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black),
         onPressed: () => Navigator.pop(context),
       ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.check, color: isDark ? AppColors.primary : AppColors.primary),
+          onPressed: () async {
+            final provider = Provider.of<UserProfileProvider>(context, listen: false);
+            await provider.updateUserProfile(_profile);
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('个人信息已保存')),
+              );
+              Navigator.pop(context);
+            }
+          },
+        ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           _profile.nickname,

@@ -63,5 +63,7 @@ app.*.map.json
 # iOS CocoaPods
 **/ios/Pods/
 
-# Trae
+
+# App Secrets
+lib/src/core/config/app_secrets.dart
 

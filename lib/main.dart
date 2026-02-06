@@ -30,6 +30,9 @@ import 'src/features/authentication/presentation/login_screen.dart';
 import 'src/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'src/features/profile/presentation/providers/user_profile_provider.dart';
 import 'src/features/weather/presentation/providers/weather_provider.dart';
+import 'src/features/ai/data/services/silicon_flow_service.dart';
+import 'src/features/ai/data/services/echo_service.dart';
+import 'src/features/ai/presentation/providers/chat_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,6 +59,11 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
+        ChangeNotifierProvider(
+          // 使用 EchoService 进行测试，如果需要真实 AI 对话请切换回 SiliconFlowService
+          create: (_) => ChatProvider(SiliconFlowService()),
+          // create: (_) => ChatProvider(EchoService()),
+        ),
         ChangeNotifierProvider(
           create: (_) {
             final weatherProvider = WeatherProvider();

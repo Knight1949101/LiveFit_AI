@@ -53,6 +53,7 @@ class AppLocalizations {
       'unitCount': 'count',
       'navHome': 'Home',
       'navSchedule': 'Schedule',
+      'navAi': 'AI',
       'navProfile': 'Profile',
       'activityTrend': 'Activity Trend',
       'weeklyTarget': 'Weekly Target',
@@ -285,6 +286,7 @@ class AppLocalizations {
       'unitCount': '次',
       'navHome': '首页',
       'navSchedule': '日程',
+      'navAi': 'AI',
       'navProfile': '我的',
       'activityTrend': '活动趋势',
       'weeklyTarget': '每周目标',
@@ -507,6 +509,7 @@ class AppLocalizations {
   String get unitCount => _localizedValues[locale.languageCode]!['unitCount']!;
   String get navHome => _localizedValues[locale.languageCode]!['navHome']!;
   String get navSchedule => _localizedValues[locale.languageCode]!['navSchedule']!;
+  String get navAi => _localizedValues[locale.languageCode]!['navAi']!;
   String get navProfile => _localizedValues[locale.languageCode]!['navProfile']!;
   String get activityTrend => _localizedValues[locale.languageCode]!['activityTrend']!;
   String get weeklyTarget => _localizedValues[locale.languageCode]!['weeklyTarget']!;

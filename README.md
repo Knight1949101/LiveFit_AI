@@ -75,23 +75,38 @@ license: Apache License 2.0
 ## 🚀 快速开始 (Getting Started)
 
 ### 环境要求
-*   Python: 3.10+
-*   Gradio: 最新版本
+*   Flutter: 3.0+
+*   Dart: 2.17+
 
 ### 安装步骤
 
 1.  **克隆项目**
     ```bash
-    git clone https://www.modelscope.cn/studios/qinyula/lifefitAI.git
-    cd lifefitAI
+    git clone https://github.com/Knight1949101/LiveFit_AI.git
+    cd LiveFit_AI
     ```
 
-2.  **安装依赖**
+2.  **配置环境密钥**
+    由于本项目包含 AI 对话等敏感功能配置，你需要手动创建配置文件。
+    
+    新建文件: `lib/src/core/config/app_secrets.dart`
+    
+    写入以下内容（替换为你自己的 SiliconFlow Token）：
+    ```dart
+    class AppSecrets {
+      // SiliconFlow API Token
+      // 请在此处填入您的 Token
+      static const String siliconFlowToken = 'YOUR_SILICONFLOW_TOKEN_HERE';
+    }
+    ```
+    > **注意**: 该文件已被 `.gitignore` 忽略，请勿将其提交到版本控制系统。
+
+3.  **安装依赖**
     ```bash
     pip install -r requirements.txt
     ```
 
-3.  **运行项目**
+4.  **运行项目**
     ```bash
     python app.py
     ```

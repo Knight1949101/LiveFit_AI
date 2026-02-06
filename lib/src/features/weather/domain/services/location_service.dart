@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import '../../../../core/services/log_service.dart';
 
 class LocationService {
   Future<Position> getCurrentPosition() async {
@@ -44,10 +45,17 @@ class LocationService {
           'https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lon&format=json&accept-language=zh-CN'
         );
         
+        // 调试日志：开始获取城市名称
+        log.debug('LocationService: 开始获取城市名称，尝试第 ${retryCount + 1} 次, URL: $url');
+
         final response = await http.get(url, headers: {
           'User-Agent': 'LifeFit/1.0',
         }).timeout(Duration(seconds: timeoutSeconds));
         
+        // 调试日志，显示 response 的原始内容
+        log.debug('LocationService: 获取城市名称响应: ${response.body}');
+
+
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           final address = data['address'] as Map<String, dynamic>;
