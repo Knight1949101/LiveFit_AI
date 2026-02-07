@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../../../../core/services/aliyun_voice_recognition_service.dart';
-import '../../../../core/services/local_voice_recognition_optimized.dart';
+import '../../../../core/services/iflytek_voice_recognition_service.dart';
 import '../../../../core/services/nlp_service.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../core/services/event_bus_service.dart';
@@ -25,10 +24,8 @@ class VoiceScheduleScreen extends StatefulWidget {
 }
 
 class _VoiceScheduleScreenState extends State<VoiceScheduleScreen> {
-  final AliyunVoiceRecognitionService _voiceService =
-      AliyunVoiceRecognitionService();
-  final OptimizedLocalVoiceRecognitionService _fallbackVoiceService =
-      OptimizedLocalVoiceRecognitionService();
+  final IFlytekVoiceRecognitionService _voiceService =
+      IFlytekVoiceRecognitionService();
   final NlpService _nlpService = NlpService();
   final AiService _aiService = AiService();
   final StorageService _storageService = StorageService();
@@ -36,7 +33,6 @@ class _VoiceScheduleScreenState extends State<VoiceScheduleScreen> {
   bool _isListening = false;
   bool _isProcessing = false;
   bool _isOnline = false; // 初始化为false，避免在网络检查完成前尝试初始化语音服务
-  bool _isUsingFallback = false; // 是否使用备用服务
   String _recognizedText = '';
   String _partialText = '';
   double _confidence = 0.0;
@@ -93,34 +89,22 @@ class _VoiceScheduleScreenState extends State<VoiceScheduleScreen> {
   /// 初始化语音服务并检查状态
   Future<void> _initSpeechService() async {
     try {
-      // 无论是否在线，都初始化语音服务
-      await _voiceService.initSpeech();
-
-      // 检查阿里云语音服务是否可用
-      if (!_voiceService.isAvailable) {
-        log.warning('阿里云语音服务不可用，尝试使用备用服务');
-        setState(() {
-          _isUsingFallback = true;
-        });
-        // 初始化备用服务
-        await _fallbackVoiceService.initSpeech();
-      }
+      // 初始化科大讯飞语音服务
+      await _voiceService.initialize();
 
       // 仅在在线状态下检查语音服务是否可用
       if (_isOnline) {
-        // 检查当前使用的语音服务是否可用
-        if ((_isUsingFallback
-            ? !_fallbackVoiceService.isAvailable
-            : !_voiceService.isAvailable)) {
+        // 检查科大讯飞语音服务是否可用
+        if (!_voiceService.isInitialized) {
           // 如果不可用，显示详细提示信息
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
                 '语音识别不可用。请检查：\n'
                 '1. 设备是否支持语音识别\n'
-                '2. 系统语音服务是否已启用\n'
+                '2. 科大讯飞SDK是否正确配置\n'
                 '3. 应用是否有麦克风权限\n'
-                '4. 小米设备请检查应用权限设置中的“语音识别”权限',
+                '4. 小米设备请检查应用权限设置中的"语音识别"权限',
               ),
               duration: Duration(seconds: 5),
             ),
@@ -132,31 +116,8 @@ class _VoiceScheduleScreenState extends State<VoiceScheduleScreen> {
       log.error('语音服务初始化失败异常: $e');
       log.error('堆栈跟踪: $stackTrace');
 
-      // 尝试使用备用服务
-      try {
-        log.info('尝试使用备用语音识别服务');
-        setState(() {
-          _isUsingFallback = true;
-        });
-        await _fallbackVoiceService.initSpeech();
-        if (_fallbackVoiceService.isAvailable) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('使用备用语音识别服务'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      } catch (fallbackError) {
-        log.error('备用语音服务初始化失败: $fallbackError');
-      }
-
       String errorMsg;
-      if (e.toString().contains('recognizerNotAvailable')) {
-        errorMsg =
-            '语音识别引擎不可用。\n'
-            '请检查设备是否支持语音识别，或尝试更新系统语音服务。';
-      } else if (e.toString().contains('permission')) {
+      if (e.toString().contains('permission')) {
         errorMsg = '请授予应用麦克风权限以使用语音识别功能。';
       } else {
         errorMsg = '语音服务初始化失败: $e';
@@ -214,7 +175,7 @@ class _VoiceScheduleScreenState extends State<VoiceScheduleScreen> {
 
     try {
       log.debug('开始调用语音识别服务...');
-      _voiceService.startListening(
+      await _voiceService.startListening(
         onResult: (result) {
           setState(() {
             _recognizedText = result;
@@ -236,13 +197,16 @@ class _VoiceScheduleScreenState extends State<VoiceScheduleScreen> {
         onStatus: (status) {
           // Handle status changes if needed
           log.debug('语音状态变化: $status');
-          if (status == 'notListening') {
+          if (status == 'completed' || status == 'error') {
             setState(() {
               _isListening = false;
+              _isProcessing = true;
             });
+            // Process the recognized text
+            _processRecognizedText();
           }
         },
-        onError: (error) {
+        onError: (error, errorType) {
           setState(() {
             _isListening = false;
           });
